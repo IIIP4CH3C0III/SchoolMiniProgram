@@ -1,0 +1,2131 @@
+// Trabalho de Grupo - 3
+
+package com.company;
+
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Formatter;
+import java.util.Locale;
+import java.util.Scanner;
+
+public class Main {
+    private static void creditos(){
+        JOptionPane.showMessageDialog(null,"<html><h3 style=\"text-align: center;\">Trabalho desenvolvido por:</h3><h3 style=\"text-align: center;\">Fábio Pacheco - 1211993<br />Leornardo Matos - 1212003<br />Filipa Sobral -1211990<br />Diana Costa - 1212004<br />Paulo Campos - 1211995</h3><p>&nbsp;</p><p>&nbsp;</p></html>","Créditos",JOptionPane.PLAIN_MESSAGE);
+    }
+
+    public static void main(String[] args) throws IOException {
+
+        final int tamanho = 100; //Quantidade de pessoas disponiveis.
+
+        int opcao, opcao2, opcao3, opcao4, nlens = 0;
+
+        //campos disponiveis
+        String[] turma_aluno = new String[tamanho];
+        int[] numero_aluno = new int[tamanho];
+        String[] nome_aluno = new String[tamanho];
+        double[] nota_alg = new double[tamanho];
+        double[] nota_java = new double[tamanho];
+        double[] nota_vb = new double[tamanho];
+        double[] nota_final = new double[tamanho];
+
+
+        do {
+            opcao = menu_principal();
+
+            switch (opcao) {
+                case -1: // Sair do programa
+                    opcao = sair_programa_pergunta();
+
+                    if (opcao == 0) {
+                        sair();
+                        break;
+                    } else {
+                        break;
+                    } // Acaba aqui
+
+                case 0: // Creditos
+                    creditos();
+                    opcao = 1;
+                    break;
+
+                case 1: // Dados do aluno
+
+                    do {
+                        opcao2 = menu_1();
+
+                        switch (opcao2) {
+                            case 0, -1: // Voltar atrás - 1
+                                opcao2 = voltar_programa_pergunta();
+
+                                if (opcao2 == 0) {
+                                    voltar();
+                                    break;
+                                } else {
+                                    break;
+                                } // Acaba aqui
+
+                            case 1: // Inserir Aluno - 1
+                                if (nlens < turma_aluno.length) {
+                                    texto_informativo_inserir_aluno();
+                                    int cancel = Inserir_dados(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nlens);
+                                    if(cancel != -1) {
+                                        nlens++;
+                                    }else{
+                                        texto_informativo_cancelada_operacao();
+                                    }
+                                } else {
+                                    texto_erro_capacidade_max();
+                                }
+                                break;
+                            case 5:
+                                if (nlens >= 1) {
+                                    Listar_dados(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb,nota_final, nlens);
+                                } else {
+                                    texto_erro_nao_existem_dados();
+                                }
+                                break;
+
+                            case 2:
+                                if (nlens >= 1) {
+                                    editar_dados(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final,nlens);
+                                } else {
+                                    texto_erro_nao_existem_dados();
+                                }
+                                break;
+
+                            case 3:
+                                if (nlens >= 1) {
+                                    elimninar_dado(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb,nota_final, nlens);
+                                    nlens = nlens - 1;
+                                } else {
+                                    texto_erro_nao_existem_dados();
+                                }
+                                break;
+
+                            case 4:
+                                if (nlens >= 1) {
+                                    pesquisar(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final,nlens);
+                                } else {
+                                    texto_erro_nao_existem_dados();
+                                }
+                                break;
+
+                            case 6:
+                                if (nlens >= 1) {
+                                    calculo_media_final(nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                    texto_informativo_media();
+                                } else {
+                                    texto_erro_nao_existem_dados();
+                                }
+                                break;
+
+                            default:
+                                texto_erro_tecla_invalida();
+                        }
+                    } while (opcao2 != 0);
+                    break;
+                case 2:
+                    if (nlens >= 1) {
+                        int pagina = 1;
+                        visualizar_tabela_geral(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens,pagina);
+                        voltar();
+                    } else {
+                        texto_erro_nao_existem_dados();
+                        opcao3 = texto_desaja_adicionar();
+
+                        if (opcao3 == 0) {
+                            texto_informativo_inserir_aluno();
+                            int cancel = Inserir_dados(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nlens);
+                            if(cancel != -1) {
+                                nlens++;
+                            }else{
+                                texto_informativo_cancelada_operacao();
+                            }
+                        }
+                        if (opcao3 == 1) {
+                            voltar();
+                        }
+                    }
+                    break;
+
+                case 3:
+                    if (nlens >= 1) {
+                        //ORDENAR
+                        ordenacao_guia(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                    }else{
+                        texto_erro_nao_existem_dados();
+                        voltar();
+                    }
+                    break;
+                case 4:
+
+                    // IMPORTAR E EXPORTAR FICHERIO
+
+                    opcao4 = menu_exportacao_importacao();
+
+                    switch (opcao4) {
+                        case 1:
+                            if(nlens >= 1) {
+                                exportar_relatorio(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                voltar();
+                            }else{
+                                texto_erro_impossibilidade_exportar();
+                            }
+                            break;
+                        case 2:
+                            if(nlens >= 1) {
+                                exportar_database(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                voltar();
+                            }else{
+                                texto_erro_impossibilidade_exportar();
+                            }
+                            break;
+                        case 3:
+                            if(nlens < 1) {
+                                boolean flag_vez = true;
+                                nlens = importar_database(flag_vez,turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                voltar();
+                            }else{
+                                texto_erro_impossibilidade_importar();
+                            }
+                            break;
+                        case 4:
+                            if(nlens >= 1) {
+                                boolean flag_vez = false;
+                                nlens = importar_database(flag_vez,turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                texto_informativo_exportação();
+                            }else{
+                                texto_erro_nao_existem_dados();
+                            }
+                        case 0:
+                            voltar();
+                            break;
+                        case 5:
+                            if(nlens >= 1) {
+                                exportar_aluno(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                voltar();
+                            }else{
+                                texto_erro_impossibilidade_exportar();
+                            }
+                            break;
+                    }
+                    break;
+                case 5:
+                    // Extra
+                    do {
+                        opcao4 = menu_extra();
+
+                        switch (opcao4) {
+                            case 0:
+                                opcao4 = -1;
+                                voltar();
+                                break;
+
+                            case 1:
+                                if (nlens >= 1) {
+                                    int op5 = menu_extra_num();
+                                    switch (op5) {
+                                        case 1:
+                                            maiores_notas(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                            voltar();
+                                            break;
+                                        case 2:
+                                            menores_notas(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                            voltar();
+                                            break;
+                                        case 3:
+                                            voltar();
+                                            break;
+                                    }
+                                } else {
+                                    texto_erro_nao_existem_dados();
+                                    opcao4 = -1;
+                                    break;
+                                }
+                                break;
+                            case 2:
+                                if (nlens >= 1) {
+                                    int op5 = menu_extra_vogais();
+                                    switch (op5) {
+                                        case 1:
+                                            maior_nome_vogais(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                            voltar();
+                                            break;
+                                        case 2:
+                                            menor_nome_vogais(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                            voltar();
+                                            break;
+                                        case 3:
+                                            voltar();
+                                            break;
+                                    }
+                                } else {
+                                    texto_erro_nao_existem_dados();
+                                    opcao4 = -1;
+                                    break;
+                                }
+                                break;
+
+                            case 3:
+                                int op5 = menu_extra_pag2();
+
+                                if(nlens >= 1) {
+
+                                    switch (op5) {
+                                        case 0:
+                                            break;
+                                        case 1:
+                                            if (nlens >= 1) {
+                                                int opcao5 = menu_extra_notas_finais();
+                                                switch (opcao5) {
+                                                    case 1:
+                                                        listar_dados_positivos(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                                        voltar();
+                                                        break;
+                                                    case 2:
+                                                        listar_dados_negativos(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                                        voltar();
+                                                        break;
+                                                    case 3:
+                                                        voltar();
+                                                        break;
+                                                }
+                                            } else {
+                                                texto_erro_nao_existem_dados();
+                                                voltar();
+                                                break;
+                                            }
+                                        case 2:
+                                            int opcao6 = menu_extra_turmas();
+                                            if (opcao6 != 0) {
+                                                if (opcao6 == 1) {
+                                                    int opcao7 = menu_extra_notas_finais();
+                                                    if (opcao7 != 0) {
+                                                        if (opcao7 == 1) { // nota mais alta
+                                                            ordenacao_nota_max(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                                            mostrar_apenas_turmas(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                                        }
+                                                        if (opcao7 == 2) { //nota mais baixa
+                                                            ordenacao_nota_min(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                                            mostrar_apenas_turmas(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                                        }
+                                                    }
+                                                }
+                                                if (opcao6 == 2) {
+                                                    int opcao8 = menu_ordenacao_a_z_abc();
+                                                    if (opcao8 != 0) {
+                                                        if (opcao8 == 1) { // a-z
+                                                            ordenacao_nome_max(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                                            mostrar_apenas_turmas(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                                        }
+                                                        if (opcao8 == 2) { // z-a
+                                                            ordenacao_nome_min(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                                            mostrar_apenas_turmas(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            break;
+                                    }break;
+                                }else{
+                                    texto_erro_nao_existem_dados();
+                                    opcao4 = -1;
+                                    break;
+                                }
+                        }
+                    }while(opcao4 != -1);
+            }
+        }while (opcao > 0);
+    }
+
+
+
+
+
+
+
+
+
+
+
+    // MENUS
+
+    private static int menu_principal() {
+        String[] opçoes_voltar = new String[]{"Créditos", "Dados de Aluno", "Visualizar", "Ordenações", "Importar/Exportar", "Curiosidades"};
+        int opcao = JOptionPane.showOptionDialog(null, "<html><h3 style=\"text-align: center;\"><strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  MENU PRINCIPAL  </strong></h3></html>", "Menu principal", -1, -1, null, opçoes_voltar, opçoes_voltar[0]);
+        return opcao;
+    }
+
+    private static int menu_1() {
+        String[] opçoes_voltar = new String[]{"Voltar ao menu", "Inserir", "Editar", "Apagar", "Pesquisar", "Visualizar","Calcular média"};
+        int opcao = JOptionPane.showOptionDialog(null, "<html><h3 style=\"text-align: center;\"><strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  MENU DE PRINCIPAL  </strong></h3></html>", "Menu do aluno", -1, -1, null, opçoes_voltar, opçoes_voltar[0]);
+
+        return opcao;
+    }
+
+    private static int menu_pesquisa() {
+        int opcao;
+        String[] opçoes_voltar = new String[]{"Voltar ao menu", "Nome", "Número"};
+        opcao = JOptionPane.showOptionDialog(null, "<html><h3 style=\"text-align: center;\"><strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MENU DE PESQUISA  </strong></h3></html>", "Menu do aluno", -1, -1, null, opçoes_voltar, opçoes_voltar[0]);
+
+        return opcao;
+    }
+
+    private static int menu_editar() {
+        int opcao;
+        String[] opçoes_voltar = new String[]{"Voltar ao menu", "Turma", "Nome", "Nota algoritmia", "Nota java","Nota em visual basic"};
+        opcao = JOptionPane.showOptionDialog(null, "<html><h3 style=\"text-align: center;\"><strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  MENU DE EDIÇÃO  </strong></h3></html>", "Menu do aluno", -1, -1, null, opçoes_voltar, opçoes_voltar[0]);
+
+        return opcao;
+    }
+
+    private static int menu_ordenacao() {
+        int opcao;
+        String[] opçoes_voltar = new String[]{"Voltar ao menu", "Número", "Alfabética", "Turma", "Média final", "Nota em algoritmia","Nota em java","Nota em visual basic"};
+        opcao = JOptionPane.showOptionDialog(null, "<html><h3 style=\"text-align: center;\"><strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  MENU DE ORDENAÇÃO  </strong></h3></html>", "Menu do aluno", -1, -1, null, opçoes_voltar, opçoes_voltar[0]);
+
+        return opcao;
+    }
+
+    private static int menu_ordenacao_cre_dec_num() {
+        int opcao;
+        String[] opçoes_voltar = new String[]{"Voltar ao menu", "Maior para menor", "Menor para maior"};
+        opcao = JOptionPane.showOptionDialog(null, "<html><h3 style=\"text-align: left;\"><strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  MENU ORDENAÇÃO NUM  </strong></h3></html>", "Menu do aluno", -1, -1, null, opçoes_voltar, opçoes_voltar[0]);
+
+        return opcao;
+    }
+
+    private static int menu_ordenacao_a_z_abc() {
+        int opcao;
+        String[] opçoes_voltar = new String[]{"Voltar ao menu", "A-Z", "Z-A"};
+        opcao = JOptionPane.showOptionDialog(null, "<html><h3 style=\"text-align: left;\"><strong>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MENU ORDENAÇÃO ABC  </strong></h3></html>", "Menu do aluno", -1, -1, null, opçoes_voltar, opçoes_voltar[0]);
+
+        return opcao;
+    }
+
+    private static int menu_exportacao_importacao() {
+        int opcao;
+        String[] opçoes_voltar = new String[]{"Voltar ao menu", "Exportar relatório", "Exportar base de dados", "Importar base de dados", "Agrupar dados","Exportar aluno especifico"};
+        opcao = JOptionPane.showOptionDialog(null, "<html><h3 style=\"text-align: center;\"><strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  MENU DE IMPORTAR / EXPORTAR  </strong></h3></html>", "Menu do aluno", -1, -1, null, opçoes_voltar, opçoes_voltar[0]);
+
+        return opcao;
+    }
+
+    private static int menu_extra() {
+        int opcao;
+        String[] opçoes_voltar = new String[]{"Voltar ao menu", "Visualização (max/min) notas","Visualização (max/min) vogais", "-->"};
+        opcao = JOptionPane.showOptionDialog(null, "<html><h3 style=\"text-align: center;\"><strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  MENU DE CURIOSIDADES  </strong></h3></html>", "Menu do aluno", -1, -1, null, opçoes_voltar, opçoes_voltar[0]);
+
+        return opcao;
+    }
+
+    private static int menu_extra_pag2() {
+        int opcao;
+        String[] opçoes_voltar = new String[]{"<--", "Visualização posit/negat","Visualizar turma(s)"};
+        opcao = JOptionPane.showOptionDialog(null, "<html><h3 style=\"text-align: center;\"><strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  MENU DE CURIOSIDADES  </strong></h3></html>", "Menu do aluno", -1, -1, null, opçoes_voltar, opçoes_voltar[0]);
+
+        return opcao;
+    }
+
+    private static int menu_extra_vogais() {
+        int opcao;
+        String[] opçoes_voltar = new String[]{"Voltar ao menu", "Aluno(s) com mais vogais no nome", "Aluno(s) com menos vogais no nome"};
+        opcao = JOptionPane.showOptionDialog(null, "<html><h3 style=\"text-align: center;\"><strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  MENU DE CURIOSIDADES  </strong></h3></html>", "Menu do aluno", -1, -1, null, opçoes_voltar, opçoes_voltar[0]);
+
+        return opcao;
+    }
+
+    private static int menu_extra_num() {
+        int opcao;
+        String[] opçoes_voltar = new String[]{"Voltar ao menu", "Aluno(s) com nota(s) mais alta(s)", "Aluno(s) com nota(s) mais baixa(s)"};
+        opcao = JOptionPane.showOptionDialog(null, "<html><h3 style=\"text-align: center;\"><strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  MENU DE CURIOSIDADES  </strong></h3></html>", "Menu do aluno", -1, -1, null, opçoes_voltar, opçoes_voltar[0]);
+
+        return opcao;
+    }
+
+    private static int menu_extra_notas_finais() {
+        int opcao;
+        String[] opçoes_voltar = new String[]{"Voltar ao menu", "Aluno(s) com nota(s) positiva(s)", "Aluno(s) com nota(s) negativa(s)"};
+        opcao = JOptionPane.showOptionDialog(null, "<html><h3 style=\"text-align: center;\"><strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  MENU DE CURIOSIDADES  </strong></h3></html>", "Menu do aluno", -1, -1, null, opçoes_voltar, opçoes_voltar[0]);
+
+        return opcao;
+    }
+
+    private static int menu_extra_turmas() {
+        int opcao;
+        String[] opçoes_voltar = new String[]{"Voltar ao menu", "Visualização (max/min) notas","Visualização ordem alfabética"};
+        opcao = JOptionPane.showOptionDialog(null, "<html><h3 style=\"text-align: center;\"><strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  MENU DE TURMAS  </strong></h3></html>", "Menu do aluno", -1, -1, null, opçoes_voltar, opçoes_voltar[0]);
+
+        return opcao;
+    }
+
+    // ACABA AQUI OS MENUS
+
+
+
+
+
+
+
+
+    private static void paginaAnterior(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens, int pagina) {
+        if (pagina != 1){
+            visualizar_tabela_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final, nlens,(pagina-1));
+        }else{
+            visualizar_tabela_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens,pagina);
+        }
+
+    }
+
+    private static void paginaSeguinte(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens, int pagina) {
+
+        if (pagina != Math.ceil((double) nlens/10)){
+            visualizar_tabela_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens,(pagina+1));
+        }else{
+            visualizar_tabela_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens,pagina);
+        }
+
+    }
+
+    private static void paginaAnterior_sMF(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb,double[] nota_final,int nlens, int pagina) {
+        if (pagina != 1){
+            visualizar_tabela_geral_sem_mf(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb, nota_final,nlens,(pagina-1));
+        }else{
+            visualizar_tabela_geral_sem_mf(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens,pagina);
+        }
+
+    }
+
+    private static void paginaSeguinte_sMF(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb,double[] nota_final, int nlens, int pagina) {
+
+        if (pagina != Math.ceil((double) nlens/10)){
+            visualizar_tabela_geral_sem_mf(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens,(pagina+1));
+        }else{
+            visualizar_tabela_geral_sem_mf(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens,pagina);
+        }
+
+    }
+
+
+    private static void visualizar_tabela_geral(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens, int pagina) {
+        int indicINI, indicFIN;
+        String[] opçoes_voltar = new String[]{"Anterior", "Voltar ao menu", "Ordenações", "Seguinte"};
+
+
+        indicINI = pagina * 10-10;
+        indicFIN = Math.min(indicINI + 10, nlens);
+
+        String msg, msg2 = "",msg3;
+        msg = "<html> <style> table, th, td { border:1px solid black; } </style> <body> <h2>Tabela de alunos</h2> <table style=\"width:300%\"> <tr> <th> <h3>Turma </th> <th> <h3> Numero</th> <th> <h3>   Nome   </th> <th> <h3> Nota algo.</th> <th> <h3> Nota java</th> <th> <h3> Nota VB</th> <th> <h3> Nota Final </h3> </th> </tr>";
+        msg3 = "</table><h3 style=\"text-align: center;\"><strong>Página " + pagina + "</strong></h3></body></html>";
+           for(int i = indicINI; i < indicFIN; i++) {
+               msg2 += "<tr> <td>"+ turma_aluno[i] +"</td> <td>"+ numero_aluno[i] +"</td> <td>"+ nome_aluno[i] +"</td> <td>"+ nota_alg[i] +"</td> <td>"+ nota_java[i] +"</td> <td>"+ nota_vb[i] +"</td> <td>" +(Math.round(nota_final[i] * 100.0) / 100.0) +"</td> </tr>";
+        }
+        msg = msg + msg2 + msg3;
+        int op = JOptionPane.showOptionDialog(null, msg,"Visualização", -1, -1, null, opçoes_voltar, opçoes_voltar[1]);
+
+        switch (op) {
+            case 0 :
+                paginaAnterior(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens,pagina);
+                break;
+            case 1 :
+                break;
+            case 2 :
+                ordenacao_guia(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens);
+                break;
+            case 3 :
+                paginaSeguinte(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens,pagina);
+                break;
+        }
+
+    }
+
+    private static void visualizar_tabela_geral_sem_mf(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb ,double[] nota_final ,int nlens,int pagina){
+        int indicINI, indicFIN;
+        String[] opçoes_voltar = new String[]{"Anterior", "Voltar ao menu","Visualizar T/B","Seguinte"};
+
+
+        indicINI = pagina * 10-10;
+        indicFIN = Math.min(indicINI + 10, nlens);
+
+        String msg, msg2 = "",msg3;
+        msg = "<html> <style> table, th, td { border:1px solid black; } </style> <body> <h2>Tabela de alunos</h2> <table style=\"width:300%\"> <tr> <th> <h3> Turma </th> <th> <h3> Numero</th> <th> <h3>  Nome   </th> <th> <h3>  Nota algo.</th> <th> <h3>  Nota java</th> <th> <h3>  Nota VB</th> </tr>";
+        msg3 = "</table><h3 style=\"text-align: center;\"><strong>Página " + pagina + "</strong></h3></body></html>";
+
+        for(int i = indicINI; i < indicFIN; i++) {
+            msg2 += "<tr> <td>"+ turma_aluno[i] +"</td> <td>"+ numero_aluno[i] +"</td> <td>"+ nome_aluno[i] +"</td> <td>"+ nota_alg[i] +"</td> <td>"+ nota_java[i] +"</td> <td>"+ nota_vb[i];
+        }
+        msg = msg + msg2 + msg3;
+        int op = JOptionPane.showOptionDialog(null, msg,"Visualização", -1, -1, null, opçoes_voltar, opçoes_voltar[1]);
+
+        switch (op) {
+            case 0 :
+                paginaAnterior_sMF(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens,pagina);
+                break;
+            case 1 :
+                voltar();
+                break;
+            case 2 :
+                calculo_media_final(nota_alg,nota_java,nota_vb,nota_final,nlens);
+                texto_informativo_media();
+                visualizar_tabela_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens,pagina);
+                break;
+            case 3 :
+                paginaSeguinte_sMF(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens,pagina);
+                break;
+        }
+    }
+
+    private static void visualizar_items_filtrados_sem_mf(int pos,String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb ){
+        String msg, msg2 = "",msg3;
+        msg = "<html> <style> table, th, td { border:1px solid black; } </style> <body> <h2>Tabela de alunos</h2> <table style=\"width:300%\"> <tr> <th> <h3>Turma </th> <th> <h3> Numero</th> <th> <h3>   Nome   </th> <th> <h3> Nota algo.</th> <th> <h3> Nota java</th> <th> <h3> Nota VB</th> </tr>";
+
+        msg3 = " </table> </body> </html>";
+
+        msg2 += "<tr> <td>"+ turma_aluno[pos] +"</td> <td>"+ numero_aluno[pos] +"</td> <td>"+ nome_aluno[pos] +"</td> <td>"+ nota_alg[pos] +"</td> <td>"+ nota_java[pos] +"</td> <td>"+ nota_vb[pos];
+
+        msg = msg + msg2 + msg3;
+        JOptionPane.showMessageDialog(null, msg,"Visualização", JOptionPane.PLAIN_MESSAGE);
+    }
+
+    private static void visualizar_items_filtrados(int[] indice,int nlens2,String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) {
+        String msg, msg2 = "",msg3;
+        msg = "<html> <style> table, th, td { border:1px solid black; } </style> <body> <h2>Tabela de alunos</h2> <table style=\"width:300%\"> <tr> <th> <h3>Turma </th> <th> <h3> Numero</th> <th> <h3>   Nome   </th> <th> <h3> Nota algo.</th> <th> <h3> Nota java</th> <th> <h3> Nota VB</th> <th> <h3> Nota Final </h3> </th> </tr>";
+        msg3 = " </table> </body> </html>";
+        for(int x = 0; x < nlens2; x++) {
+            msg2 += "<tr> <td>"+ turma_aluno[indice[x]] +"</td> <td>"+ numero_aluno[indice[x]] +"</td> <td>"+ nome_aluno[indice[x]] +"</td> <td>"+ nota_alg[indice[x]] +"</td> <td>"+ nota_alg[indice[x]] +"</td> <td>"+ nota_vb[indice[x]] +"</td> <td>" + (Math.round(nota_final[indice[x]] * 100.0) / 100.0) +"</td> </tr>";
+        }
+        msg = msg + msg2 + msg3;
+        JOptionPane.showMessageDialog(null, msg,"Visualização", JOptionPane.PLAIN_MESSAGE);
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+    // SHORTCUTS DE TEXTOS
+
+    private static String texto_inserir_nome() {
+        String msg = "<html><h3 style=\"text-align: center;\"><strong>Nome?</strong></h3></html>";
+        return msg;
+    }
+
+    private static String texto_inserir_turma() {
+        String msg = "<html><h3 style=\"text-align: center;\"><strong>Turma?</strong></h3></html>";
+        return msg;
+    }
+
+    private static String texto_inserir_nota_alg() {
+        String msg = "<html><h3 style=\"text-align: center;\"><strong>Nota em algoritmia?</strong></h3></html>";
+        return msg;
+    }
+
+    private static String texto_inserir_nota_java() {
+        String msg = "<html><h3 style=\"text-align: center;\"><strong>Nota em java?</strong></h3></html>";
+        return msg;
+    }
+
+    private static String texto_inserir_nota_vb() {
+        String msg = "<html><h3 style=\"text-align: center;\"><strong>Nota em visual basic?</strong></h3></html>";
+        return msg;
+    }
+
+    private static void texto_informativo_ordenacao(int op){
+        switch(op){
+            case 0:
+                JOptionPane.showMessageDialog(null,"<html><h3 style=\"text-align: center;\"><strong>Ordenação por média mais alta...</strong></h3></html>","Ordenação",JOptionPane.INFORMATION_MESSAGE);
+
+                break;
+            case 1:
+                JOptionPane.showMessageDialog(null,"<html><h3 style=\"text-align: center;\"><strong>Ordenação por média mais baixa...</strong></h3></html>","Ordenação",JOptionPane.INFORMATION_MESSAGE);
+
+                break;
+            case 2:
+                JOptionPane.showMessageDialog(null,"<html><h3 style=\"text-align: center;\"><strong>Ordenação por ordem decrescente números...</strong></h3></html>","Ordenação",JOptionPane.INFORMATION_MESSAGE);
+
+                break;
+            case 3:
+                JOptionPane.showMessageDialog(null,"<html><h3 style=\"text-align: center;\"><strong>Ordenação por ordem crecente números...</strong></h3></html>","Ordenação",JOptionPane.INFORMATION_MESSAGE);
+
+                break;
+            case 4:
+                JOptionPane.showMessageDialog(null,"<html><h3 style=\"text-align: center;\"><strong>Ordenação por ordem a-z...</strong></h3></html>","Ordenação",JOptionPane.INFORMATION_MESSAGE);
+
+                break;
+            case 5:
+                JOptionPane.showMessageDialog(null,"<html><h3 style=\"text-align: center;\"><strong>Ordenação por ordem z-a...</strong></h3></html>","Ordenação",JOptionPane.INFORMATION_MESSAGE);
+
+                break;
+            case 6:
+                JOptionPane.showMessageDialog(null,"<html><h3 style=\"text-align: center;\"><strong>Ordenação por ordem a-z...</strong></h3></html>","Ordenação",JOptionPane.INFORMATION_MESSAGE);
+
+                break;
+            case 7:
+                JOptionPane.showMessageDialog(null,"<html><h3 style=\"text-align: center;\"><strong>Ordenação por ordem z-a...</strong></h3></html>","Ordenação",JOptionPane.INFORMATION_MESSAGE);
+
+                break;
+            case 8:
+                JOptionPane.showMessageDialog(null,"<html><h3 style=\"text-align: center;\"><strong>Ordenação por ordem crescente notas de algoritmia...</strong></h3></html>","Ordenação",JOptionPane.INFORMATION_MESSAGE);
+
+                break;
+            case 9:
+                JOptionPane.showMessageDialog(null,"<html><h3 style=\"text-align: center;\"><strong>Ordenação por ordem decrescente notas de algoritmia...</strong></h3></html>","Ordenação",JOptionPane.INFORMATION_MESSAGE);
+
+                break;
+            case 10:
+                JOptionPane.showMessageDialog(null,"<html><h3 style=\"text-align: center;\"><strong>Ordenação por ordem crescente notas de visual basic...</strong></h3></html>","Ordenação",JOptionPane.INFORMATION_MESSAGE);
+
+                break;
+            case 11:
+                JOptionPane.showMessageDialog(null,"<html><h3 style=\"text-align: center;\"><strong>Ordenação por ordem decrescente notas de visual basic...</strong></h3></html>","Ordenação",JOptionPane.INFORMATION_MESSAGE);
+
+                break;
+            case 12:
+                JOptionPane.showMessageDialog(null,"<html><h3 style=\"text-align: center;\"><strong>Ordenação por ordem crescente notas de java...</strong></h3></html>","Ordenação",JOptionPane.INFORMATION_MESSAGE);
+
+                break;
+            case 13:
+                JOptionPane.showMessageDialog(null,"<html><h3 style=\"text-align: center;\"><strong>Ordenação por ordem decrescente java...</strong></h3></html>","Ordenação",JOptionPane.INFORMATION_MESSAGE);
+
+                break;
+        }
+    }
+
+    private static void voltar() {
+        JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\"><strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A voltar...</strong></h3></html>","Voltar",JOptionPane.PLAIN_MESSAGE);
+    }
+
+    private static void sair() {
+        JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\"><strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A sair do programa...</strong></h3></html>","Sair",JOptionPane.PLAIN_MESSAGE);
+
+    }
+
+    private static void texto_informativo_inserir_aluno() {
+        JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\">(Insira os dados da seguinte forma)</h3> <h4 style=\"text-align: center;\"><em>(Turma | Nome | Nota em Algoritima | Nota em Java | Nota em Visual Basic)</em></h4></html>","Inserir Aluno",JOptionPane.PLAIN_MESSAGE);
+    }
+
+    private static void texto_informativo_path() {
+        JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\">Ficheiro exportado.</h3> <h4 style=\"text-align: center;\"><em> caminho : C/Users/IdeaProjects/Trabalho N - 1 de Java/data_base/dados_exportados.txt </em></h4></html>","Exportação",JOptionPane.PLAIN_MESSAGE);
+    }
+
+    private static void texto_informativo_exportação() {
+        JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Exportação Concluida.</h3></html>","Exportação",JOptionPane.PLAIN_MESSAGE);
+    }
+
+    private static void texto_informativo_exportação_cancelada() {
+        JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Exportação cancelada.</h3></html>","Exportação",JOptionPane.PLAIN_MESSAGE);
+    }
+
+    private static void texto_informativo_cancelada_operacao() {
+        JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Operação cancelada.</h3></html>","Inserir aluno",JOptionPane.PLAIN_MESSAGE);
+    }
+
+    private static void texto_informativo_media() {
+        JOptionPane.showMessageDialog(null,"<html><h3 style=\"text-align: center;\"><strong>Média calculada..</strong></h3></html>","Calculo",JOptionPane.PLAIN_MESSAGE);
+    }
+
+    private static void texto_informativo_remover_aluno(String nome) {
+        String msg = "<html><h3 style=\"text-align: center;\"><strong>Aluno removido da base de dados</strong> <h4 style=\"text-align: center;\"><em> Nome do aluno : " + nome + "</em></h3></html>";
+        JOptionPane.showMessageDialog(null,msg,"Calculo",JOptionPane.PLAIN_MESSAGE);
+    }
+
+    private static void texto_erro_capacidade_max() {
+        JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\">Inseriu a capacidade máxima de alunos.</h3> </html>" ,"Erro", JOptionPane.WARNING_MESSAGE);
+    }
+
+    private static void texto_erro_nao_existem_dados() {
+        JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\">Não existe nenhum dado para ser mostrado.</h3> </html>","Erro", JOptionPane.WARNING_MESSAGE);
+    }
+
+    private static void texto_erro_pesquisa() {
+        JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\">Não existe ninguém com esse dado.</h3> </html>","Erro", JOptionPane.WARNING_MESSAGE);
+    }
+
+    private static void texto_erro_tecla_invalida() {
+        JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\">Função invalida.</h3> </html>","Erro", JOptionPane.WARNING_MESSAGE);
+    }
+
+    private static void texto_erro_impossibilidade_importar() {
+        JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\">Impossibilidade de importar, devido a existenciâ de dados atualmente.</h3></html>","Erro", JOptionPane.WARNING_MESSAGE);
+    }
+
+    private static void texto_erro_impossibilidade_exportar() {
+        JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\">Impossibilidade de exportar, devido a não existência de dados.</h3></html>","Erro", JOptionPane.WARNING_MESSAGE);
+    }
+
+    private static void texto_erro_dado_invalido() {
+        JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\">Introduziu um valor inválido.</h3></html>", "Erro", JOptionPane.WARNING_MESSAGE);
+    }
+
+    private static void texto_erro_aluno_n_found() {
+        JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\">Aluno não encontrado.</h3></html>", "Erro", JOptionPane.WARNING_MESSAGE);
+    }
+
+    private static int texto_desaja_adicionar() {
+        int op;
+        String[] opc = new String[] {"Sim", "Não"};
+
+        op = JOptionPane.showOptionDialog(null,"<html><h2 style=\"text-align: center;\"><strong> &nbsp;&nbsp  Deseja adicionar algum aluno?  </strong></h2></html>", "Menu de entrada",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, opc,opc[1]);
+
+        return op;
+    }
+
+    private static int texto_pergunta_ficheiro_novo() {
+        int op;
+        String[] opc = new String[] {"Sim", "Não"};
+
+        op = JOptionPane.showOptionDialog(null,"<html><h2 style=\"text-align: center;\"><strong> &nbsp;&nbsp  Deseja adicionar um ficheiro novo?  </strong></h2></html>", "Menu de exportação",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, opc,opc[1]);
+
+        return op;
+    }
+
+    private static int texto_pergunta_duplicado(String nome, String turma) {
+        int op;
+        String[] opc = new String[] {"Adicionar", "Ignorar","Atualizar"};
+        String msg = "<html><h2 style=\"text-align: center;\"><strong> O aluno encontra-se em duplicado. </strong></h2> <h4 style=\"text-align: center;\"><em>" + turma + "&nbsp; -> &nbsp;" + nome + "</em></h4></html>";
+
+        op = JOptionPane.showOptionDialog(null,msg, "Menu de importação",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, opc,opc[1]);
+
+        return op;
+    }
+
+    private static int sair_programa_pergunta() {
+
+        String[] opçoes_voltar = new String[] {"Sim", "Não"};
+        int op;
+
+        op = JOptionPane.showOptionDialog(null,"<html><h2 style=\"text-align: center;\"><strong> &nbsp;&nbsp;   Deseja sair do Programa?  </strong></h2></html>", "Menu de saída",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, opçoes_voltar,opçoes_voltar[1]);
+
+        return op;
+    }
+
+    private static int voltar_programa_pergunta() {
+
+        String[] opçoes_voltar = new String[] {"Sim", "Não"};
+        int op;
+
+        op = JOptionPane.showOptionDialog(null,"<html><h3 style=\"text-align: center;\"><strong> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Deseja voltar ao menu? </strong></h3></html>", "Menu de volta",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, opçoes_voltar,opçoes_voltar[1]);
+
+        return op;
+    }
+
+    //ACABA AQUI OS SHORTCUTS
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //OPÇÕES DE BASE DE DADOS
+
+    private static int Inserir_dados(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, int nlens) {
+
+        boolean flag;
+
+        flag = editar_turma(nlens,turma_aluno);
+
+        if(flag == false){
+            return -1; // quer dizer que foi cancelado
+        }
+        flag = editar_nome(nlens,nome_aluno);
+
+        if(flag == false){
+            return -1; // quer dizer que foi cancelado
+        }
+
+        numero_aluno[nlens] = nlens + 1010100;
+
+        flag = editar_alg(nlens, nota_alg);
+        if(flag == false){
+            return -1; // quer dizer que foi cancelado
+        }
+        flag = editar_java(nlens, nota_java);
+        if(flag == false){
+            return -1; // quer dizer que foi cancelado
+        }
+        flag = editar_vs(nlens, nota_vb);
+        if(flag == false){
+            return -1; // quer dizer que foi cancelado
+        }
+
+        visualizar_items_filtrados_sem_mf(nlens,turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb);
+
+        voltar();
+        return 0; //quer dizer que acabou
+    }
+
+    private static void Listar_dados(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final,int nlens) {
+        int pagina = 1;
+        visualizar_tabela_geral_sem_mf(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens,pagina);
+
+    }
+
+    private static String[] menu_editar_termo_geral(boolean flag){
+        if(flag == false) {
+            Object[] escolhas_nome = {"Selecionar nome", "Tabela", "Voltar ao menu"};
+
+            String[] vetreturn = new String[2];
+            JPanel panel2 = new JPanel();
+            panel2.add(new JLabel("<html><h3 style=\"text-align: center;\"><strong>Insira o nome a procurar?</strong></h3></html>"));
+            JTextField textField = new JTextField(10);
+            panel2.add(textField);
+
+            int y = JOptionPane.showOptionDialog(null, panel2, "Pesquisa",
+                    JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
+                    null, escolhas_nome, null);
+
+            String aux_text = Integer.toString(y);
+            vetreturn[0] = aux_text;
+            vetreturn[1] = textField.getText();
+
+            return vetreturn;
+        }
+        if(flag == true){
+            Object[] escolhas_num = {"Selecionar numero", "Tabela", "Voltar ao menu"};
+
+            String[] vetreturn = new String[2];
+            JPanel panel2 = new JPanel();
+            panel2.add(new JLabel("<html><h3 style=\"text-align: center;\"><strong>Insira o numero a procurar?</strong></h3></html>"));
+            JTextField textField = new JTextField(10);
+            panel2.add(textField);
+
+            int y = JOptionPane.showOptionDialog(null, panel2, "Pesquisa",
+                    JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
+                    null, escolhas_num, null);
+
+            String aux_text = Integer.toString(y);
+            vetreturn[0] = aux_text;
+            vetreturn[1] = textField.getText();
+
+            return vetreturn;
+        }
+        String[] vetreturn = new String[2];
+        return vetreturn;
+    }
+
+    private static void editar_dados(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb,double[] nota_final, int nlens) {
+        int pos, op, opcao,opcao2,num;
+        String nome_pesquisar;
+        boolean flag_tipo = false; //false = nome \ true = num
+        op = menu_pesquisa();
+
+        switch (op) {
+            case 1: // PESQUISA POR NOME
+                flag_tipo = false;
+                String[] vet_return = menu_editar_termo_geral(flag_tipo);
+                int y = Integer.parseInt(vet_return[0]);
+
+                if(y == 0) {
+                    nome_pesquisar = vet_return[1];
+                    pos = pesquisar_nome_aluno(nome_pesquisar, nome_aluno, nlens);
+
+                    if (pos > -1) {
+                        visualizar_items_filtrados_sem_mf(pos, turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb);
+
+
+                        // resetar valores
+                        do {
+                            opcao = menu_editar();
+                            switch (opcao) {
+                                case 1:
+                                    editar_turma(pos, turma_aluno);
+                                    break;
+                                case 2:
+                                    editar_nome(pos, nome_aluno);
+                                    break;
+                                case 3:
+                                    editar_alg(pos, nota_alg);
+                                    break;
+                                case 4:
+                                    editar_java(pos, nota_java);
+                                    break;
+                                case 5:
+                                    editar_vs(pos, nota_vb);
+                                    break;
+                            }
+                            visualizar_items_filtrados_sem_mf(pos, turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb);
+
+                            opcao2 = voltar_programa_pergunta();
+                        } while (opcao2 == 1);
+
+                    } else {
+                        texto_erro_pesquisa();
+                        break;
+                    }
+                }
+                if(y == 1){
+                    int pagina = 1;
+                    visualizar_tabela_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens,pagina);
+                    editar_dados(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens);
+                }
+                if(y == 2){
+                    voltar();
+                    break;
+                }
+                break;
+
+            case 2: // PESQUISA POR NUMERO
+                flag_tipo = true;
+                String[] vet_return_num = menu_editar_termo_geral(flag_tipo);
+                int z = Integer.parseInt(vet_return_num[0]);
+
+                if (z == 0){
+                    num = Integer.parseInt(vet_return_num[1]);
+                    pos = pesquisar_numero_aluno(num, numero_aluno, nlens);
+                    if (pos > -1) {
+                        visualizar_items_filtrados_sem_mf(pos,turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb);
+                        // resetar valores
+                        do {
+                            opcao = menu_editar();
+
+                            switch (opcao) {
+                                case 0, -1:
+                                    voltar();
+                                case 1:
+                                    editar_turma(pos, turma_aluno);
+                                    break;
+                                case 2:
+                                    editar_nome(pos, nome_aluno);
+                                    break;
+                                case 3:
+                                    editar_alg(pos, nota_alg);
+                                    break;
+                                case 4:
+                                    editar_java(pos, nota_java);
+                                    break;
+                                case 5:
+                                    editar_vs(pos, nota_vb);
+                                    break;
+                            }
+                            visualizar_items_filtrados_sem_mf(pos,turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb);
+
+                            opcao2 = voltar_programa_pergunta();
+                        }while(opcao2 == 1);
+                    } else {
+                        texto_erro_pesquisa();
+                    }
+                }
+                if(z == 1){
+                    int pagina = 1;
+                    visualizar_tabela_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens,pagina);
+                    editar_dados(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens);
+                }
+                if(z == 2){
+                    voltar();
+                    break;
+                }
+
+            default:
+                voltar();
+                break;
+
+            // FINALIZA EDITAR
+        }
+    }
+
+    private static boolean editar_turma(int pos, String[] turma_aluno){
+        String[] turma = {"AA","BB","CC","DD","EE","FF"};
+        boolean flag = true;
+
+        turma_aluno[pos] = (String)JOptionPane.showInputDialog(
+                null,
+                "Qual turma pertence o aluno?",
+                "Escolha de turma",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                turma,
+                turma[0]);
+        if(turma_aluno[pos] == null){
+            flag = false;
+            return flag;
+        }
+        return flag;
+    }
+
+    private static String[] inserir_turma(String[] nome_aluno){
+        String turmanull = "", inserir_turma;
+        boolean flag = false;
+        String[] flag_op = new String[2];
+        flag_op[0] = "1";
+        do {
+            inserir_turma = JOptionPane.showInputDialog(null,texto_inserir_turma(),"Inserir turma do aluno",JOptionPane.PLAIN_MESSAGE);
+            if(inserir_turma != null) {
+                if (inserir_turma.equalsIgnoreCase(turmanull)) {
+                    texto_erro_dado_invalido();
+                    flag = false;
+                }else{
+                    flag = true;
+                    if(Integer.parseInt(flag_op[0]) == 1) {
+                        inserir_turma = inserir_turma.toUpperCase(Locale.ROOT);
+                    }
+                }
+            }
+            if(inserir_turma == null){
+                //JOptionPane.showMessageDialog(null,"Cancelado");
+                flag = true;
+                flag_op[0] = "0";
+                flag_op[1] = null;
+                return flag_op;
+            }
+        } while(flag == false);
+        flag_op[1] = inserir_turma;
+        return flag_op;
+    }
+
+    private static boolean editar_nome(int pos, String[] nome_aluno) {
+        String nomesiso = "";
+        boolean flag = false;
+        boolean flag_op = true;
+        do {
+            nome_aluno[pos] = JOptionPane.showInputDialog(null,texto_inserir_nome(),"Inserir nome do aluno",JOptionPane.PLAIN_MESSAGE);
+            if(nome_aluno[pos] != null) {
+                if (nome_aluno[pos].equalsIgnoreCase(nomesiso)) {
+                    texto_erro_dado_invalido();
+                    flag = false;
+                }else{
+                    flag = true;
+                    if(flag_op == true) {
+                        nome_aluno[pos] = nome_aluno[pos].toUpperCase(Locale.ROOT);
+                    }
+                }
+            }
+            if(nome_aluno[pos] == null){
+                //JOptionPane.showMessageDialog(null,"Cancelado");
+                flag = true;
+                flag_op = false;
+                return flag_op;
+            }
+        } while(flag == false);
+        return flag_op;
+    }
+
+    private static boolean editar_alg(int pos, double[] nota_alg) {
+
+        String aux;
+        nota_alg[pos] = -1;
+        boolean flag = false;
+
+        do {
+            aux = JOptionPane.showInputDialog(null,texto_inserir_nota_alg(),"Inserir notas",JOptionPane.PLAIN_MESSAGE);
+
+            if (aux == null) {
+                return flag;
+            } else {
+
+                try {
+                    nota_alg[pos] = Double.parseDouble(aux);
+
+                    if(nota_alg[pos] > 20 || nota_alg[pos] < 0){
+                        texto_erro_dado_invalido();
+                    }
+
+                } catch (NumberFormatException e) {
+                    texto_erro_dado_invalido();
+
+                }
+            }
+        }while(nota_alg[pos] > 20 ||nota_alg[pos] < 0);
+        flag = true;
+        return flag;
+    }
+
+    private static boolean editar_java(int pos, double[] nota_java) {
+        boolean flag = false;
+        String aux;
+        nota_java[pos] = -1;
+
+        do {
+            aux = JOptionPane.showInputDialog(null,texto_inserir_nota_java(),"Inserir notas",JOptionPane.PLAIN_MESSAGE);
+
+            if (aux == null) {
+                return flag;
+            } else {
+
+                try {
+                    nota_java[pos] = Double.parseDouble(aux);
+
+                    if(nota_java[pos] > 20 || nota_java[pos] < 0){
+                        texto_erro_dado_invalido();
+                    }
+
+                } catch (NumberFormatException e) {
+                    texto_erro_dado_invalido();
+
+                }
+            }
+        }while(nota_java[pos] > 20 ||nota_java[pos] < 0);
+        flag = true;
+        return flag;
+    }
+
+    private static boolean editar_vs(int pos, double[] nota_vb) {
+        boolean flag = false;
+        String aux;
+        nota_vb[pos] = -1;
+
+        do {
+            aux = JOptionPane.showInputDialog(null,texto_inserir_nota_vb(),"Inserir notas",JOptionPane.PLAIN_MESSAGE);
+
+            if (aux == null) {
+                return flag;
+            } else {
+
+                try {
+                    nota_vb[pos] = Double.parseDouble(aux);
+
+                    if(nota_vb[pos] > 20 || nota_vb[pos] < 0){
+                         texto_erro_dado_invalido();
+                    }
+
+                } catch (NumberFormatException e) {
+                    texto_erro_dado_invalido();
+
+                }
+            }
+        }while(nota_vb[pos] > 20 ||nota_vb[pos] < 0);
+        flag = true;
+        return flag;
+    }
+
+    private static void elimninar_dado(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb,double[] nota_final, int nlens) {
+        int op, pos, num, x;
+        String nome_pesquisar;
+        boolean flag_tipo;
+        op = menu_pesquisa();
+
+        switch (op) {
+            case 1: // PESQUISA POR NOME
+                flag_tipo = false;
+                String[] vet_return = menu_editar_termo_geral(flag_tipo);
+                int y = Integer.parseInt(vet_return[0]);
+                if(y == 0) {
+                    String nome_aluno_remov = null;
+                    nome_pesquisar = vet_return[1];
+                    pos = pesquisar_nome_aluno(nome_pesquisar, nome_aluno, nlens);
+
+                    if(pos > -1) {
+                        nome_aluno_remov = nome_aluno[pos];
+                    }
+                    if (pos > -1) {
+                        for (x = pos; x < nlens; x++) {
+                            turma_aluno[x] = turma_aluno[x + 1];
+                            numero_aluno[x] = numero_aluno[x + 1] - 1;
+                            nome_aluno[x] = nome_aluno[x + 1];
+                            nota_alg[x] = nota_alg[x + 1];
+                            nota_java[x] = nota_java[x + 1];
+                            nota_vb[x] = nota_vb[x + 1];
+                            nota_final[x] = nota_final[x + 1];
+
+                        }
+                        texto_informativo_remover_aluno(nome_aluno_remov);
+                    } else {
+                        texto_erro_aluno_n_found();
+                    }
+                }
+                if(y == 1){
+                    int pagina = 1;
+                    visualizar_tabela_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens,pagina);
+                    elimninar_dado(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens);
+                }
+                if(y == 2){
+                    voltar();
+                    break;
+                }
+                break;
+            case 2: // PESQUISA POR NUMERO
+                flag_tipo = true;
+                String[] vet_return_num = menu_editar_termo_geral(flag_tipo);
+                num = Integer.parseInt(vet_return_num[0]);
+
+                if (num == 0) {
+                    String nome_aluno_rem=null;
+                    int numero_pesquisar = Integer.parseInt(vet_return_num[1]);
+                    pos = pesquisar_numero_aluno(numero_pesquisar, numero_aluno, nlens);
+                    if(pos > -1) {
+                        nome_aluno_rem = nome_aluno[pos];
+                    }
+                    if (pos > -1) {
+                        for (x = pos; x < nlens; x++) {
+                            turma_aluno[x] = turma_aluno[x + 1];
+                            numero_aluno[x] = numero_aluno[x + 1] - 1;
+                            nome_aluno[x] = nome_aluno[x + 1];
+                            nota_alg[x] = nota_alg[x + 1];
+                            nota_java[x] = nota_java[x + 1];
+                            nota_vb[x] = nota_vb[x + 1];
+                            nota_final[x] = nota_final[x + 1];
+                        }
+                        texto_informativo_remover_aluno(nome_aluno_rem);
+                    } else {
+                        texto_erro_aluno_n_found();
+                    }
+                }
+                if(num == 1){
+                    int pagina = 1;
+                    visualizar_tabela_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens,pagina);
+                    elimninar_dado(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens);
+                }
+                if(num == 2){
+                    voltar();
+                    break;
+                }
+                break;
+            case 0: //Sair
+                voltar();
+                break;
+
+            default:
+                voltar();
+                break;
+
+        }
+    }
+
+    private static void pesquisar(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final,int nlens) {
+        int op, pos,y;
+        String nome_pesquisar;
+        boolean flag_tipo;
+
+        op = menu_pesquisa();
+
+        if (op == 1) { //Nome
+            flag_tipo = false;
+            String[] vet_return = menu_editar_termo_geral(flag_tipo);
+
+            y = Integer.parseInt(vet_return[0]);
+            nome_pesquisar = vet_return[1];
+            pos = pesquisar_nome_aluno(nome_pesquisar, nome_aluno, nlens);
+
+            if(y == 0) {
+                if (pos > -1) {
+                    visualizar_items_filtrados_sem_mf(pos,turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb);
+                } else {
+                    texto_erro_aluno_n_found();
+                }
+            }
+            if(y == 1){
+                int pagina = 1;
+                visualizar_tabela_geral_sem_mf(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens,pagina);
+                pesquisar(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens);
+            }
+            if(y == 2){
+                voltar();
+            }
+        }
+        if (op == 2) { // Num
+            flag_tipo = true;
+            String[] vet_return_num = menu_editar_termo_geral(flag_tipo);
+
+            int z = Integer.parseInt(vet_return_num[0]);
+
+            if(z == 0){
+                int num = Integer.parseInt(vet_return_num[1]);
+                pos = pesquisar_numero_aluno(num, numero_aluno, nlens);
+                if (pos > -1) {
+                    visualizar_items_filtrados_sem_mf(pos,turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb);
+                } else {
+                    texto_erro_aluno_n_found();
+                }
+            }
+            if(z == 1){
+                int pagina = 1;
+                visualizar_tabela_geral_sem_mf(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens,pagina);
+                //pesquisar(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens);
+            }
+            if(z == 2){
+                voltar();
+            }
+        } else {
+            voltar();
+        }
+    }
+
+
+    //PESQUISAS
+
+    private static int pesquisar_nome_aluno(String nome_pesquisar, String[] nome_aluno, int nlens) {
+        int pos = 0;
+
+        while (pos < nlens && nome_pesquisar.equalsIgnoreCase(nome_aluno[pos]) == false) {
+            pos++;
+        }
+
+        if (pos < nlens) {
+            return pos;
+        } else {
+            return -1;
+        }
+    }
+
+    private static int pesquisar_numero_aluno(int numero, int[] numero_aluno, int nlens) {
+        int pos = 0, aux = 0,aux2 = 0;
+
+        while (pos < nlens) {
+            if(numero == numero_aluno[pos]){
+                aux = pos;
+                pos = nlens + 1;
+
+            }
+            pos++;
+            aux2++;
+        }
+        if (aux2 < nlens) {
+            return aux;
+        } else {
+            return -1;
+        }
+    }
+
+    private static String pesquisar_turma(String turma, String[] turma_aluno, int nlens) {
+          for(int x = 0; x < nlens ; x++){
+              char ch = turma_aluno[x].charAt(0);
+              char ch1 = turma.charAt(0);
+                if(ch == ch1){
+                    return turma; //Encontrou uma turma
+                }
+          }
+          return null;
+    }
+
+    // FIM PESQUISAS
+
+    // CALCULOS ADICIONAIS
+
+    private static void calculo_media_final(double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) {
+        int x;
+        for (x = 0; x < nlens; x++) {
+            nota_final[x] = ((nota_alg[x] * 0.30) + (nota_java[x] * 0.40) + (nota_vb[x] * 0.30));
+        }
+    }
+
+    // FIM CALCULOS ADICIONAIS
+
+    // ORDENAÇÕES
+
+    private static void ordenacao_guia(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) {
+        int op2 = menu_ordenacao();
+        int opcao2;
+        boolean flag = false;
+        switch (op2) {
+            case 0: // Voltar atras
+                opcao2 = voltar_programa_pergunta();
+
+                if (opcao2 == 0) {
+                    voltar();
+                    flag = true;
+                    break;
+                } else {
+                    break;
+                }
+
+            case 1: // NUM
+                opcao2 = menu_ordenacao_cre_dec_num();
+
+                if (opcao2 == 1) {
+                    ordenacao_num_max(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                    texto_informativo_ordenacao(2);
+                }
+                if (opcao2 == 2) {
+                    ordenacao_num_min(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                    texto_informativo_ordenacao(3);
+
+                }
+                if (opcao2 == 0) {
+                    voltar();
+                    flag = true;
+                }
+                break;
+            case 2: // NOME
+                opcao2 = menu_ordenacao_a_z_abc();
+
+                if (opcao2 == 1) {
+                    ordenacao_nome_max(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                    texto_informativo_ordenacao(6);
+
+                }
+                if (opcao2 == 2) {
+                    ordenacao_nome_min(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                    texto_informativo_ordenacao(5);
+
+                }
+                if (opcao2 == 0) {
+                    voltar();
+                    flag = true;
+                }
+                break;
+            case 3: // TURMA
+                opcao2 = menu_ordenacao_a_z_abc();
+
+                if (opcao2 == 1) {
+                    ordenacao_turma_max(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                    texto_informativo_ordenacao(6);
+
+                }
+                if (opcao2 == 2) {
+                    ordenacao_turma_min(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                    texto_informativo_ordenacao(5);
+
+                }
+                if (opcao2 == 0) {
+                    voltar();
+                    flag = true;
+                }
+                break;
+
+
+            case 4: // MEDIA
+                opcao2 = menu_ordenacao_cre_dec_num();
+
+                if (opcao2 == 1) {
+                    ordenacao_nota_max(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                    texto_informativo_ordenacao(0);
+
+                }
+                if (opcao2 == 2) {
+                    ordenacao_nota_min(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                    texto_informativo_ordenacao(1);
+
+                }
+                if (opcao2 == 0) {
+                    voltar();
+                    flag = true;
+                }
+                break;
+            case 5: // ALG
+                opcao2 = menu_ordenacao_cre_dec_num();
+
+                if (opcao2 == 1) {
+                    ordenacao_nota_alg_max(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                    texto_informativo_ordenacao(9);
+
+                }
+                if (opcao2 == 2) {
+                    ordenacao_nota_alg_min(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                    texto_informativo_ordenacao(8);
+
+                }
+                if (opcao2 == 0) {
+                    voltar();
+                    flag = true;
+                }
+                break;
+            case 6: // JAVA
+                opcao2 = menu_ordenacao_cre_dec_num();
+
+                if (opcao2 == 1) {
+                    ordenacao_nota_java_max(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                    texto_informativo_ordenacao(13);
+
+                }
+                if (opcao2 == 2) {
+                    ordenacao_nota_java_min(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                    texto_informativo_ordenacao(12);
+
+                }
+                if (opcao2 == 0) {
+                    voltar();
+                    flag = true;
+                }
+                break;
+            case 7: // VB
+                opcao2 = menu_ordenacao_cre_dec_num();
+
+                if (opcao2 == 1) {
+                    ordenacao_nota_vb_max(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                    texto_informativo_ordenacao(11);
+
+                }
+                if (opcao2 == 2) {
+                    ordenacao_nota_vb_min(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+                    texto_informativo_ordenacao(10);
+
+                }
+                if (opcao2 == 0) {
+                    voltar();
+                    flag = true;
+                }
+                break;
+        }
+        if(flag == false){
+            int pagina = 1;
+            visualizar_tabela_geral(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens,pagina);
+            voltar();
+        }
+    }
+    private static void ordenacao_termo_geral(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int x,int y) {
+        int aux_int;
+        String aux_txt;
+        double aux;
+
+        aux = nota_final[x];
+        nota_final[x] = nota_final[y];
+        nota_final[y] = aux;
+
+        aux_txt = turma_aluno[x];
+        turma_aluno[x] = turma_aluno[y];
+        turma_aluno[y] = aux_txt;
+
+        aux_int = numero_aluno[x];
+        numero_aluno[x] = numero_aluno[y];
+        numero_aluno[y] = aux_int;
+
+        aux_txt = nome_aluno[x];
+        nome_aluno[x] = nome_aluno[y];
+        nome_aluno[y] = aux_txt;
+
+        aux = nota_vb[x];
+        nota_alg[x] = nota_alg[y];
+        nota_alg[y] = aux;
+
+        aux = nota_vb[x];
+        nota_java[x] = nota_java[y];
+        nota_java[y] = aux;
+
+        aux = nota_vb[x];
+        nota_vb[x] = nota_vb[y];
+        nota_vb[y] = aux;
+
+    }
+
+    private static void ordenacao_nota_max(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) {
+        for (int x = 0; x < nlens; x++) {
+            for (int y = x + 1; y < nlens; y++){
+                if (nota_final[x] < nota_final[y] ) {
+                    ordenacao_termo_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,x,y);
+                }
+            }
+        }
+    }
+
+    private static void ordenacao_nota_min(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) {
+        for (int x = 0; x < nlens; x++) {
+            for (int y = x + 1; y < nlens; y++){
+                if (nota_final[x] > nota_final[y] ) {
+                    ordenacao_termo_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,x,y);
+                }
+            }
+        }
+    }
+
+    private static void ordenacao_num_max(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) {
+        for (int x = 0; x < nlens; x++) {
+            for (int y = x + 1; y < nlens; y++) {
+                if (numero_aluno[x] < numero_aluno[y]) {
+                    ordenacao_termo_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,x,y);
+                }
+            }
+        }
+    }
+
+    private static void ordenacao_num_min(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) {
+        for (int x = 0; x < nlens; x++) {
+            for (int y = x + 1; y < nlens; y++) {
+                if (numero_aluno[x] > numero_aluno[y]) {
+                    ordenacao_termo_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,x,y);
+                }
+            }
+        }
+    }
+
+    private static void ordenacao_turma_max(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) {
+        for (int x = 0; x < nlens; x++) {
+            for (int y = x + 1; y < nlens; y++) {
+                if(turma_aluno[x].compareToIgnoreCase(turma_aluno[y]) > 0 ){
+                    ordenacao_termo_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,x,y);
+                }
+            }
+        }
+    }
+
+    private static void ordenacao_turma_min(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) {
+        for (int x = 0; x < nlens; x++) {
+            for (int y = x + 1; y < nlens; y++) {
+                if(turma_aluno[x].compareToIgnoreCase(turma_aluno[y]) < 0 ){
+                    ordenacao_termo_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,x,y);
+                }
+            }
+        }
+    }
+
+    private static void ordenacao_nome_max(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) {
+        for (int x = 0; x < nlens; x++) {
+            for (int y = x + 1; y < nlens; y++) {
+                if(nome_aluno[x].compareToIgnoreCase(nome_aluno[y]) > 0 ){
+                    ordenacao_termo_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,x,y);
+                }
+            }
+        }
+    }
+
+    private static void ordenacao_nome_min(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) {
+        for (int x = 0; x < nlens; x++) {
+            for (int y = x + 1; y < nlens; y++) {
+                if(nome_aluno[x].compareToIgnoreCase(nome_aluno[y]) < 0 ){
+                    ordenacao_termo_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,x,y);
+                }
+            }
+        }
+    }
+
+    private static void ordenacao_nota_alg_min(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) {
+        for (int x = 0; x < nlens; x++) {
+            for (int y = x + 1; y < nlens; y++) {
+                if (nota_alg[x] > nota_alg[y]) {
+                    ordenacao_termo_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,x,y);
+                }
+            }
+        }
+    }
+
+    private static void ordenacao_nota_alg_max(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) {
+        for (int x = 0; x < nlens; x++) {
+            for (int y = x + 1; y < nlens; y++) {
+                if (nota_alg[x] < nota_alg[y]) {
+                    ordenacao_termo_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,x,y);
+                }
+            }
+        }
+    }
+
+    private static void ordenacao_nota_vb_min(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) {
+        for (int x = 0; x < nlens; x++) {
+            for (int y = x + 1; y < nlens; y++) {
+                if (nota_vb[x] > nota_vb[y]) {
+                    ordenacao_termo_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,x,y);
+                }
+            }
+        }
+    }
+
+    private static void ordenacao_nota_vb_max(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) {
+        for (int x = 0; x < nlens; x++) {
+            for (int y = x + 1; y < nlens; y++) {
+                if (nota_vb[x] < nota_vb[y]) {
+                    ordenacao_termo_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,x,y);
+                }
+            }
+        }
+    }
+
+    private static void ordenacao_nota_java_min(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) {
+        for (int x = 0; x < nlens; x++) {
+            for (int y = x + 1; y < nlens; y++) {
+                if (nota_java[x] > nota_java[y]) {
+                    ordenacao_termo_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,x,y);
+                }
+            }
+        }
+    }
+
+    private static void ordenacao_nota_java_max(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) {
+        for (int x = 0; x < nlens; x++) {
+            for (int y = x + 1; y < nlens; y++) {
+                if (nota_java[x] < nota_java[y]) {
+                    ordenacao_termo_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,x,y);
+                }
+            }
+        }
+    }
+
+    private static void listar_dados_positivos(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb,double[] nota_final, int nlens) {
+        int nlens2 = 0,y = 0;
+
+        for (int x = 0; x < nlens; x++) {
+            if (nota_final[x]>=9.5) {
+                nlens2++;
+            }
+        }
+
+        int pos[] = new int[nlens2];
+
+        for (int x = 0; x < nlens; x++) {
+            if (nota_final[x]>=9.5) {
+                pos[y] = x;
+                y++;
+            }
+        }
+
+        visualizar_items_filtrados(pos,nlens2,turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens);
+    }
+
+    private static void listar_dados_negativos(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb,double[] nota_final, int nlens) {
+        int nlens2 = 0,y = 0;
+
+        for (int x = 0; x < nlens; x++) {
+            if (nota_final[x]<9.5) {
+                nlens2++;
+            }
+        }
+
+        int pos[] = new int[nlens2];
+
+        for (int x = 0; x < nlens; x++) {
+            if (nota_final[x]<9.5) {
+                pos[y] = x;
+                y++;
+            }
+        }
+
+        visualizar_items_filtrados(pos,nlens2,turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens);
+    }
+
+
+    // FIM ORGANIZAÇÕES
+
+
+
+
+
+    // EXPORTAR E IMPORTAR FICHEIROS
+
+    private static void exportar_relatorio(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) throws FileNotFoundException {
+        Formatter tabela_alunos = new Formatter("relatorio.txt");
+
+        String msg = "|   Turma   |   Numero   |   Nome   |   Nota Algoritmia   |   Nota Java  |" +
+                "   Nota Visual Basic   |   Média Final   |\n_____________________________________________________________________________________________________________________\n\n";
+
+        tabela_alunos.format(msg);
+
+        for(int x = 0; x < nlens; x++){
+            tabela_alunos.format( "|     %s     |     %d     |     %s     |     %.1f     |     %.1f     |     %.1f     |     %.1f     |\n",turma_aluno[x] ,numero_aluno[x],
+                    nome_aluno[x],nota_alg[x],nota_java[x],nota_vb[x],nota_final[x]);
+        }
+        tabela_alunos.close();
+
+        JOptionPane.showMessageDialog(null,"Exportação como relatório concluida.");
+    }
+
+    private static void exportar_database(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) throws IOException {
+        int opcao = texto_pergunta_ficheiro_novo();
+
+        if(opcao == 0) {
+
+            String fname = JOptionPane.showInputDialog(null,"<html><h3 style=\"text-align: center;\"><strong>Nome do ficheiro?</strong></h3></html>",
+                    "Exportar",JOptionPane.PLAIN_MESSAGE);
+            if(fname != null) {
+                JFileChooser chooser = new JFileChooser(escolher_ficheiro(fname));
+                String dir = System.getProperty("user.dir");
+                String path1 = dir + "\\" + fname + ".txt";
+                String path2 = dir + "\\data_base\\" + fname + ".txt";
+
+                Path temp = Files.move
+                        (Paths.get(path1),
+                                Paths.get(path2));
+
+                chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                int escolha = chooser.showSaveDialog(null);
+
+                String path = chooser.getSelectedFile().getAbsolutePath();
+
+                Formatter tabela_alunos = new Formatter(new File(path));
+
+                if (escolha == JFileChooser.APPROVE_OPTION) {
+
+                    for (int x = 0; x < nlens; x++) {
+                        tabela_alunos.format("%s - %d - %s - %.0f - %.0f -  %.0f -  %.0f \n", turma_aluno[x], numero_aluno[x],
+                                nome_aluno[x], nota_alg[x], nota_java[x], nota_vb[x], nota_final[x]);
+                    }
+                    tabela_alunos.close();
+                    texto_informativo_exportação();
+                }
+                if (escolha == JFileChooser.CANCEL_OPTION) {
+                    texto_informativo_exportação_cancelada();
+                }
+            }else{
+                texto_informativo_exportação_cancelada();
+            }
+        }
+
+        if(opcao == 1) {
+            String path_database = System.getProperty("user.dir") + "/data_base/dados_exportados.txt";
+            Formatter tabela_alunos = new Formatter(path_database);
+
+            for (int x = 0; x < nlens; x++) {
+                tabela_alunos.format("%s - %d - %s - %.0f - %.0f -  %.0f -  %.0f \n", turma_aluno[x], numero_aluno[x],
+                        nome_aluno[x], nota_alg[x], nota_java[x], nota_vb[x], nota_final[x]);
+            }
+            tabela_alunos.close();
+            texto_informativo_path();
+        }
+    }
+
+    private static File escolher_ficheiro(String fname) throws IOException {
+        File file = null;
+        file = new File(fname + ".txt");
+
+        if (!file.createNewFile()) {
+            throw new RuntimeException("Impossibilidade de guardar");
+        }
+        return file;
+    }
+
+    private static void exportar_aluno(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) throws FileNotFoundException {
+        int pos;
+        String nome, msg = "|   Turma   |   Numero   |   Nome   |   Nota Algoritmia   |   Nota Java  |" +
+                "   Nota Visual Basic   |   Média Final   |\n_____________________________________________________________________________________________________________________\n\n";;
+
+        nome = JOptionPane.showInputDialog("Insira o nome do aluno");
+        pos = pesquisar_nome_aluno(nome,nome_aluno,nlens);
+
+        if(pos > -1) {
+            Formatter tabela_alunos = new Formatter("dados_aluno.txt");
+            tabela_alunos.format(msg + "|    %s     |     %d      |  %s  |        %.0f          |      %.0f      |           %.0f          |      %.2f      | \n", turma_aluno[pos], numero_aluno[pos], nome_aluno[pos], nota_alg[pos], nota_java[pos], nota_vb[pos], nota_final[pos]);
+            JOptionPane.showMessageDialog(null,"Exportação concluida.");
+            tabela_alunos.close();
+        }else{
+            JOptionPane.showMessageDialog(null,"Não existe ninguêm com o nome procurado.\n Voltar ao menu principal...");
+        }
+    }
+
+
+    private static int importar_database(boolean flag,String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens) throws FileNotFoundException {
+        String path_database = System.getProperty("user.dir") + "/data_base";
+
+        JFileChooser chooser = new JFileChooser(path_database);
+
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Ficheiros de texto", "txt", "text");
+        chooser.setFileFilter(filter);
+
+        chooser.showSaveDialog(null);
+
+        File file = chooser.getSelectedFile();
+
+        Scanner basedados = new Scanner(file);
+
+        if(flag != true) {
+            ordenacao_num_min(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+        }
+
+        int y;
+
+        while(basedados.hasNextLine() && nlens < turma_aluno.length){
+            String linha = basedados.nextLine();
+
+            String[] vetlinha = linha.split("-");
+
+            turma_aluno[nlens] = vetlinha[0];
+            if(flag == true){
+                numero_aluno[nlens] = Integer.parseInt(vetlinha[1].trim());
+            }else{
+                numero_aluno[nlens] = numero_aluno[nlens - 1] + 1;
+            }
+            nome_aluno[nlens] =vetlinha[2].trim();
+            nota_alg[nlens] = Double.parseDouble(vetlinha[3].trim());
+            nota_java[nlens] = Double.parseDouble(vetlinha[4].trim());
+            nota_vb[nlens] = Double.parseDouble(vetlinha[5].trim());
+            nota_final[nlens] = Double.parseDouble(vetlinha[6].trim());
+
+            if(flag != true){
+                boolean flag_final = true;
+                for(y = 0; y < nlens; y++) {
+                    if(turma_aluno[nlens] != null || nome_aluno[nlens] != null) {
+                        if (turma_aluno[y].equalsIgnoreCase(turma_aluno[nlens])) {
+                            if (nome_aluno[y].equalsIgnoreCase(nome_aluno[nlens])) {
+                                //TODO
+                                int aux = texto_pergunta_duplicado(nome_aluno[nlens],turma_aluno[nlens]);
+                                if (aux == 0) { // manter
+                                    flag_final = false;
+                                    y = nlens;
+                                } if(aux == 1) { // remover 0
+                                    flag_final = true;
+                                    y = nlens;
+                                } if(aux == 2) {
+
+                                    flag_final = true;
+
+                                    nota_alg[y] = nota_alg[nlens];
+                                    nota_java[y] = nota_java[nlens];
+                                    nota_vb[y] = nota_vb[nlens];
+
+                                    calculo_media_final(nota_alg,nota_java,nota_vb,nota_final,nlens);
+
+                                    y = nlens;
+
+                                }
+                            } else {
+                                flag_final = false;
+                            }
+                        } else {
+                            flag_final = false;
+                        }
+                    }
+                }
+                if(flag_final != true){
+                    nlens++;
+                }
+
+            }else {
+                nlens++;
+            }
+
+        }
+
+
+        return nlens;
+    }
+
+    private static void maior_nome_vogais(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens){
+        int contarVogais, vogaismax = 0,y = 0;
+
+        int[] indice = new int[nlens];
+        int[] indicemax = new int[nlens];
+
+        for(int x = 0;x < nlens; x++) {
+            contarVogais = 0;
+            for (int i = 0; i < nome_aluno[x].length(); i++) {
+                char ch = nome_aluno[x].charAt(i);
+
+                if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u' || ch == ' ' || ch == 'A' || ch == 'E' || ch == 'I' || ch == 'O' || ch == 'U' || ch == 'á' || ch == 'é' || ch == 'í' || ch == 'ó' || ch == 'ú' || ch == 'Á' || ch == 'É' || ch == 'Í' || ch == 'Ó' || ch == 'Ú' || ch == 'à' || ch == 'è' || ch == 'ì' || ch == 'ò' || ch == 'ù' || ch == 'À' || ch == 'È' || ch == 'Ì' || ch == 'Ò' || ch == 'Ù' || ch == 'â' || ch == 'ê' || ch == 'î' || ch == 'ô' || ch == 'û' || ch == 'Â' || ch == 'Ê' || ch == 'Î' || ch == 'Ô' || ch == 'Û' || ch == 'ã' || ch == 'õ' || ch == 'Ã' || ch == 'Õ') {
+                    contarVogais++;
+                }
+            }
+            if (contarVogais >= vogaismax) {
+                vogaismax = contarVogais;
+            }
+            indice[x] = contarVogais;
+        }
+        for(int x = 0; x < nlens; x++) {
+            if(indice[x] == vogaismax) {
+                indicemax[y] = x;
+                y++;
+            }
+        }
+        visualizar_items_filtrados(indicemax,y,turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+    }
+
+    private static void menor_nome_vogais(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens){
+        int contarVogais, vogaismax = 0,y = 0;
+
+        int[] indice = new int[nlens];
+        int[] indicemax = new int[nlens];
+
+        boolean flag = false;
+
+        for(int x = 0;x < nlens; x++) {
+            contarVogais = 0;
+            for (int i = 0; i < nome_aluno[x].length(); i++) {
+                char ch = nome_aluno[x].charAt(i);
+
+                if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u' || ch == ' ' || ch == 'A' || ch == 'E' || ch == 'I' || ch == 'O' || ch == 'U' || ch == 'á' || ch == 'é' || ch == 'í' || ch == 'ó' || ch == 'ú' || ch == 'Á' || ch == 'É' || ch == 'Í' || ch == 'Ó' || ch == 'Ú' || ch == 'à' || ch == 'è' || ch == 'ì' || ch == 'ò' || ch == 'ù' || ch == 'À' || ch == 'È' || ch == 'Ì' || ch == 'Ò' || ch == 'Ù' || ch == 'â' || ch == 'ê' || ch == 'î' || ch == 'ô' || ch == 'û' || ch == 'Â' || ch == 'Ê' || ch == 'Î' || ch == 'Ô' || ch == 'Û' || ch == 'ã' || ch == 'õ' || ch == 'Ã' || ch == 'Õ') {
+                    contarVogais++;
+                }
+            }
+            if(flag == false){
+                vogaismax = contarVogais;
+                flag = true;
+            }
+
+            if (contarVogais <= vogaismax) {
+                vogaismax = contarVogais;
+            }
+            indice[x] = contarVogais;
+            //JOptionPane.showMessageDialog(null,nome_aluno[x]+"->"+ contarVogais);
+        }
+        for(int x = 0; x < nlens; x++) {
+            if(indice[x] == vogaismax) {
+                indicemax[y] = x;
+                y++;
+            }
+        }
+        visualizar_items_filtrados(indicemax,y,turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+    }
+
+    private static void maiores_notas(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens){
+        int contador,y = 0,x;
+        double notamax = 0;
+
+        int[] indice = new int[nlens];
+
+        for(x = 0;x < nlens;x++){
+            if(nota_final[x] > notamax){
+                notamax = nota_final[x];
+            }
+        }
+        for(x = 0;x < nlens; x++){
+            if(nota_final[x] == notamax){
+                indice[y] = x;
+                y++;
+            }
+        }
+        visualizar_items_filtrados(indice,y,turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+    }
+
+    private static void menores_notas(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens){
+        int y = 0,x;
+        double notamin = 20;
+
+        int[] indice = new int[nlens];
+
+        for(x = 0;x < nlens;x++){
+            if(nota_final[x] < notamin){
+                notamin = nota_final[x];
+            }
+        }
+        for(x = 0;x < nlens; x++){
+            if(nota_final[x] == notamin){
+                indice[y] = x;
+                y++;
+            }
+        }
+        visualizar_items_filtrados(indice,y,turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
+    }
+
+
+    private static void mostrar_apenas_turmas(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens){
+        String[] turma = inserir_turma(turma_aluno);
+
+        if(Integer.parseInt(turma[0]) != 0) {
+            String turma_selector = pesquisar_turma(turma[1], turma_aluno, nlens);
+            int[] indice = new int[nlens];
+            int nlens2 = 0;
+
+            if (turma_selector != null) {
+
+                for (int x = 0; x < nlens; x++) {
+                    char ch = turma_aluno[x].charAt(0);
+                    char ch1 = turma_selector.charAt(0);
+
+                    if (ch == ch1) {
+                        indice[nlens2] = x;
+                        nlens2++;
+                    }
+                }
+            }
+            visualizar_items_filtrados(indice,nlens2,turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens);
+        }
+    }
+
+}
+
