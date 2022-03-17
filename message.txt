@@ -15,15 +15,15 @@ import java.util.Locale;
 import java.util.Scanner;
 
 public class Main {
-    private static void creditos(){
+    private static void creditos(){ // Mostar os creditos do programa
         JOptionPane.showMessageDialog(null,"<html><h3 style=\"text-align: center;\">Trabalho desenvolvido por:</h3><h3 style=\"text-align: center;\">Fábio Pacheco - 1211993<br />Leornardo Matos - 1212003<br />Filipa Sobral -1211990<br />Diana Costa - 1212004<br />Paulo Campos - 1211995</h3><p>&nbsp;</p><p>&nbsp;</p></html>","Créditos",JOptionPane.PLAIN_MESSAGE);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException { //Aqui começa o programa principal
 
-        final int tamanho = 100; //Quantidade de pessoas disponiveis.
+        final int tamanho = 100; //Quantidade de alunos disponiveis.
 
-        int opcao, opcao2, opcao3, opcao4, nlens = 0;
+        int opcao, opcao2, opcao3, opcao4, nlens = 0; // Definir nlens e as opções que vamos utilizar
 
         //campos disponiveis
         String[] turma_aluno = new String[tamanho];
@@ -33,21 +33,27 @@ public class Main {
         double[] nota_java = new double[tamanho];
         double[] nota_vb = new double[tamanho];
         double[] nota_final = new double[tamanho];
-
-
+        
+        /*Dicionario do programa 
+            todas as funções que contiverem "texto_informativo" -> são textos simplesmente para informarem 
+            todas as funções que contiverem "texto_erro" -> são textos que apresentam um erro cometido
+            todas as funções que contiverem "texto_pergunta / texto-deseja / etc.. -> são textos que fazem uma pergunta para obter um resposta 1/0
+      
+        */
+        
         do {
-            opcao = menu_principal();
+            opcao = menu_principal(); // Menu principal
 
             switch (opcao) {
-                case -1: // Sair do programa
+                case -1: // Sair do programa 
                     opcao = sair_programa_pergunta();
 
-                    if (opcao == 0) {
+                    if (opcao == 0) { // Caso Sim(0) sair do programa caso Não(1) ficar
                         sair();
                         break;
                     } else {
                         break;
-                    } // Acaba aqui
+                    } 
 
                 case 0: // Creditos
                     creditos();
@@ -60,86 +66,91 @@ public class Main {
                         opcao2 = menu_1();
 
                         switch (opcao2) {
-                            case 0, -1: // Voltar atrás - 1
+                            case 0, -1: // Voltar ao menu principal
                                 opcao2 = voltar_programa_pergunta();
 
-                                if (opcao2 == 0) {
+                                if (opcao2 == 0) { // Caso Sim(0) sair do programa caso Não(1) ficar
                                     voltar();
                                     break;
                                 } else {
                                     break;
-                                } // Acaba aqui
+                                } 
 
                             case 1: // Inserir Aluno - 1
-                                if (nlens < turma_aluno.length) {
-                                    texto_informativo_inserir_aluno();
-                                    int cancel = Inserir_dados(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nlens);
+                                if (nlens < turma_aluno.length) { // So inicializa isto caso nlens for inferior ao tamanho do vetor
+                                    texto_informativo_inserir_aluno(); // Texto de informação
+                                    int cancel = Inserir_dados(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nlens); 
+                                    // Caso o cancel for -1 significa que foi cancelada a criação do aluno
+                                    
                                     if(cancel != -1) {
                                         nlens++;
                                     }else{
                                         texto_informativo_cancelada_operacao();
                                     }
+                                   
                                 } else {
                                     texto_erro_capacidade_max();
                                 }
                                 break;
-                            case 5:
+                                
+                            case 5: // Listar todos os dados atuais sem a media final
                                 if (nlens >= 1) {
                                     Listar_dados(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb,nota_final, nlens);
-                                } else {
+                                } else { // caso não existam alunos ele dá erro
                                     texto_erro_nao_existem_dados();
                                 }
                                 break;
 
-                            case 2:
-                                if (nlens >= 1) {
+                            case 2: // Editar qualquer dado de aluno retirando o numero
+                                if (nlens >= 1) { 
                                     editar_dados(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final,nlens);
-                                } else {
+                                } else { // caso não existam alunos ele dá erro
                                     texto_erro_nao_existem_dados();
                                 }
                                 break;
 
-                            case 3:
+                            case 3: // Remover qualquer aluno da base de dados em trabalho
                                 if (nlens >= 1) {
                                     elimninar_dado(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb,nota_final, nlens);
                                     nlens = nlens - 1;
-                                } else {
+                                } else { // caso não existam alunos ele dá erro
                                     texto_erro_nao_existem_dados();
                                 }
                                 break;
 
-                            case 4:
+                            case 4: // Fazer uma simples pesquisa por aluno
                                 if (nlens >= 1) {
                                     pesquisar(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final,nlens);
-                                } else {
+                                } else { // caso não existam alunos ele dá erro
                                     texto_erro_nao_existem_dados();
                                 }
                                 break;
 
-                            case 6:
+                            case 6: // Quando utilizado esta função será feito o calculo da média final 
                                 if (nlens >= 1) {
                                     calculo_media_final(nota_alg, nota_java, nota_vb, nota_final, nlens);
                                     texto_informativo_media();
-                                } else {
+                                } else { // caso não existam alunos ele dá erro
                                     texto_erro_nao_existem_dados();
                                 }
                                 break;
 
-                            default:
+                            default: // Caso seja inserida uma tecla invalida "old"
                                 texto_erro_tecla_invalida();
                         }
                     } while (opcao2 != 0);
                     break;
-                case 2:
-                    if (nlens >= 1) {
-                        int pagina = 1;
+                case 2: // Visualizar a tabela com todos os dados existentes e com a possibilidade de voltar,ordenar e mudar de página
+                
+                    if (nlens >= 1) { // Executa a função de visualizar
+                        int pagina = 1; // para definir a página que o utlizar vai se encontrar
                         visualizar_tabela_geral(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens,pagina);
                         voltar();
-                    } else {
-                        texto_erro_nao_existem_dados();
-                        opcao3 = texto_desaja_adicionar();
+                    } else { // caso não existam alunos ele dá erro
+                        texto_erro_nao_existem_dados(); 
+                        opcao3 = texto_desaja_adicionar(); // Pergunta se queremos adicionar algum.
 
-                        if (opcao3 == 0) {
+                        if (opcao3 == 0) { // Inserir um aluno 
                             texto_informativo_inserir_aluno();
                             int cancel = Inserir_dados(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nlens);
                             if(cancel != -1) {
@@ -147,14 +158,14 @@ public class Main {
                             }else{
                                 texto_informativo_cancelada_operacao();
                             }
-                        }
+                        } // volta ao menu
                         if (opcao3 == 1) {
                             voltar();
                         }
                     }
                     break;
 
-                case 3:
+                case 3: // ordena pela ordem que o utilizador queira
                     if (nlens >= 1) {
                         //ORDENAR
                         ordenacao_guia(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
@@ -163,6 +174,7 @@ public class Main {
                         voltar();
                     }
                     break;
+                    
                 case 4:
 
                     // IMPORTAR E EXPORTAR FICHERIO
@@ -170,7 +182,7 @@ public class Main {
                     opcao4 = menu_exportacao_importacao();
 
                     switch (opcao4) {
-                        case 1:
+                        case 1: // Exportar um relatório para impressão
                             if(nlens >= 1) {
                                 exportar_relatorio(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
                                 voltar();
@@ -178,7 +190,7 @@ public class Main {
                                 texto_erro_impossibilidade_exportar();
                             }
                             break;
-                        case 2:
+                        case 2: // Vai dar a possibilidade de guardar a base de dados para ser editada posteriormente
                             if(nlens >= 1) {
                                 exportar_database(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
                                 voltar();
@@ -186,7 +198,7 @@ public class Main {
                                 texto_erro_impossibilidade_exportar();
                             }
                             break;
-                        case 3:
+                        case 3: // Importar uma base de dados salva no computador ou numa nuvem em formato .txt
                             if(nlens < 1) {
                                 boolean flag_vez = true;
                                 nlens = importar_database(flag_vez,turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
@@ -195,7 +207,7 @@ public class Main {
                                 texto_erro_impossibilidade_importar();
                             }
                             break;
-                        case 4:
+                        case 4: // Unir bases de dados com diferentes ou não alunos
                             if(nlens >= 1) {
                                 boolean flag_vez = false;
                                 nlens = importar_database(flag_vez,turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
@@ -203,10 +215,11 @@ public class Main {
                             }else{
                                 texto_erro_nao_existem_dados();
                             }
-                        case 0:
+                        case 0: // Voltar ao menu principal
                             voltar();
                             break;
-                        case 5:
+                            
+                        case 5: // Exportar um aluno especifico para analise
                             if(nlens >= 1) {
                                 exportar_aluno(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
                                 voltar();
@@ -217,7 +230,9 @@ public class Main {
                     }
                     break;
                 case 5:
-                    // Extra
+                
+                    // Curiosidades
+                    
                     do {
                         opcao4 = menu_extra();
 
@@ -226,8 +241,8 @@ public class Main {
                                 opcao4 = -1;
                                 voltar();
                                 break;
-
-                            case 1:
+ 
+                            case 1: // Mostra apenas os alunos que obtiveram as notas máximas ou minimas absolutas
                                 if (nlens >= 1) {
                                     int op5 = menu_extra_num();
                                     switch (op5) {
@@ -243,13 +258,14 @@ public class Main {
                                             voltar();
                                             break;
                                     }
-                                } else {
+                                } else { // caso não existam alunos ele dá erro
                                     texto_erro_nao_existem_dados();
                                     opcao4 = -1;
                                     break;
                                 }
                                 break;
-                            case 2:
+                                
+                            case 2: // Mostrar os alunos com mais ou menos vogais no nome, valor este tambem absoluto
                                 if (nlens >= 1) {
                                     int op5 = menu_extra_vogais();
                                     switch (op5) {
@@ -265,22 +281,22 @@ public class Main {
                                             voltar();
                                             break;
                                     }
-                                } else {
+                                } else { // caso não existam alunos ele dá erro
                                     texto_erro_nao_existem_dados();
                                     opcao4 = -1;
                                     break;
                                 }
                                 break;
 
-                            case 3:
+                            case 3: // Trocar de página pra visualizar mais opções de filtragem
                                 int op5 = menu_extra_pag2();
 
                                 if(nlens >= 1) {
 
                                     switch (op5) {
-                                        case 0:
+                                        case 0: // Voltar 
                                             break;
-                                        case 1:
+                                        case 1: // mostrar alunos com positivas ou negativas
                                             if (nlens >= 1) {
                                                 int opcao5 = menu_extra_notas_finais();
                                                 switch (opcao5) {
@@ -296,22 +312,23 @@ public class Main {
                                                         voltar();
                                                         break;
                                                 }
-                                            } else {
+                                            } else { // caso não existam alunos ele dá erro
                                                 texto_erro_nao_existem_dados();
                                                 voltar();
                                                 break;
                                             }
-                                        case 2:
+                                            
+                                        case 2: // Filtrar dados por uma turma em especifico
                                             int opcao6 = menu_extra_turmas();
                                             if (opcao6 != 0) {
                                                 if (opcao6 == 1) {
                                                     int opcao7 = menu_extra_notas_finais();
                                                     if (opcao7 != 0) {
-                                                        if (opcao7 == 1) { // nota mais alta
+                                                        if (opcao7 == 1) { // ordenar por nota mais alta
                                                             ordenacao_nota_max(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
                                                             mostrar_apenas_turmas(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
                                                         }
-                                                        if (opcao7 == 2) { //nota mais baixa
+                                                        if (opcao7 == 2) { // ordenar por nota mais baixa
                                                             ordenacao_nota_min(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
                                                             mostrar_apenas_turmas(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
                                                         }
@@ -320,11 +337,11 @@ public class Main {
                                                 if (opcao6 == 2) {
                                                     int opcao8 = menu_ordenacao_a_z_abc();
                                                     if (opcao8 != 0) {
-                                                        if (opcao8 == 1) { // a-z
+                                                        if (opcao8 == 1) { // ordenas por a-z
                                                             ordenacao_nome_max(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
                                                             mostrar_apenas_turmas(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
                                                         }
-                                                        if (opcao8 == 2) { // z-a
+                                                        if (opcao8 == 2) { // ordenar por z-a
                                                             ordenacao_nome_min(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
                                                             mostrar_apenas_turmas(turma_aluno, numero_aluno, nome_aluno, nota_alg, nota_java, nota_vb, nota_final, nlens);
                                                         }
@@ -333,7 +350,7 @@ public class Main {
                                             }
                                             break;
                                     }break;
-                                }else{
+                                }else{ // caso não existam alunos ele dá erro
                                     texto_erro_nao_existem_dados();
                                     opcao4 = -1;
                                     break;
@@ -354,7 +371,9 @@ public class Main {
 
 
 
-    // MENUS
+    // MENUS 
+    
+    //FUNÇÕES QUE RETORNAM O VALOR DA OPÇÃO ESCOLHIDA
 
     private static int menu_principal() {
         String[] opçoes_voltar = new String[]{"Créditos", "Dados de Aluno", "Visualizar", "Ordenações", "Importar/Exportar", "Curiosidades"};
@@ -474,6 +493,11 @@ public class Main {
 
 
 
+    // VISUALIZAÇÃO DE TABELAS 
+    
+    // PROCEDIMENTOS PARA VISUALIZAR A TABELA OU FILTRAR DADOS DE ALGUMA TABELA
+
+
     private static void paginaAnterior(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens, int pagina) {
         if (pagina != 1){
             visualizar_tabela_geral(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final, nlens,(pagina-1));
@@ -512,6 +536,7 @@ public class Main {
 
     }
 
+    // VISUALIZAR A TABELA COM TODOS OS DADOS
 
     private static void visualizar_tabela_geral(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int nlens, int pagina) {
         int indicINI, indicFIN;
@@ -545,6 +570,8 @@ public class Main {
         }
 
     }
+    
+    // VISUALIZAR A TABELA COM TODOS OS DADOS EXCETO A MEDIA FINAL
 
     private static void visualizar_tabela_geral_sem_mf(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb ,double[] nota_final ,int nlens,int pagina){
         int indicINI, indicFIN;
@@ -582,6 +609,8 @@ public class Main {
         }
     }
 
+    // VISUALIZAR DADOS FILTRADOS POR INDICE
+
     private static void visualizar_items_filtrados_sem_mf(int pos,String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb ){
         String msg, msg2 = "",msg3;
         msg = "<html> <style> table, th, td { border:1px solid black; } </style> <body> <h2>Tabela de alunos</h2> <table style=\"width:300%\"> <tr> <th> <h3>Turma </th> <th> <h3> Numero</th> <th> <h3>   Nome   </th> <th> <h3> Nota algo.</th> <th> <h3> Nota java</th> <th> <h3> Nota VB</th> </tr>";
@@ -607,6 +636,9 @@ public class Main {
 
     }
 
+    // ACABA AQUI AS VISUALIZAÇÕES 
+
+
 
 
 
@@ -617,6 +649,8 @@ public class Main {
 
 
     // SHORTCUTS DE TEXTOS
+    
+    // TEXTOS DE APRESENTAÇÃO DE INSERIR DADOS (FUNÇÕES QUE RETORNAM UMA MENSAGEM)
 
     private static String texto_inserir_nome() {
         String msg = "<html><h3 style=\"text-align: center;\"><strong>Nome?</strong></h3></html>";
@@ -642,6 +676,10 @@ public class Main {
         String msg = "<html><h3 style=\"text-align: center;\"><strong>Nota em visual basic?</strong></h3></html>";
         return msg;
     }
+    
+    // ACABA AQUI OS TEXTOS DE APRESENTAÇÃO DE INSERIR DADOS
+    
+    // TEXTOS DE APRESENTAÇÃO DE ORDENAÇÃO 
 
     private static void texto_informativo_ordenacao(int op){
         switch(op){
@@ -703,7 +741,12 @@ public class Main {
                 break;
         }
     }
+    
+    // ACABA AQUI A APRESENTAO DE TEXTOS DE ORDENAÇÃO
 
+
+    // TEXTO DE APRESENTAÇÃO VOLTAR OU SAIR 
+    
     private static void voltar() {
         JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\"><strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A voltar...</strong></h3></html>","Voltar",JOptionPane.PLAIN_MESSAGE);
     }
@@ -712,6 +755,10 @@ public class Main {
         JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\"><strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A sair do programa...</strong></h3></html>","Sair",JOptionPane.PLAIN_MESSAGE);
 
     }
+    
+    // ACABA AQUI 
+    
+    // TEXTO DE APRESENTAÇÃO INFORMATIVOS
 
     private static void texto_informativo_inserir_aluno() {
         JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\">(Insira os dados da seguinte forma)</h3> <h4 style=\"text-align: center;\"><em>(Turma | Nome | Nota em Algoritima | Nota em Java | Nota em Visual Basic)</em></h4></html>","Inserir Aluno",JOptionPane.PLAIN_MESSAGE);
@@ -741,6 +788,10 @@ public class Main {
         String msg = "<html><h3 style=\"text-align: center;\"><strong>Aluno removido da base de dados</strong> <h4 style=\"text-align: center;\"><em> Nome do aluno : " + nome + "</em></h3></html>";
         JOptionPane.showMessageDialog(null,msg,"Calculo",JOptionPane.PLAIN_MESSAGE);
     }
+    
+    // ACABA AQUI OS TEXTOS INFORMATIVOS
+    
+    // TEXTOS DE APRESENTAÇÃO DE ERROS
 
     private static void texto_erro_capacidade_max() {
         JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\">Inseriu a capacidade máxima de alunos.</h3> </html>" ,"Erro", JOptionPane.WARNING_MESSAGE);
@@ -773,6 +824,12 @@ public class Main {
     private static void texto_erro_aluno_n_found() {
         JOptionPane.showMessageDialog(null, "<html><h3 style=\"text-align: center;\">Aluno não encontrado.</h3></html>", "Erro", JOptionPane.WARNING_MESSAGE);
     }
+    
+    // ACABA AQUI OS ERROS 
+    
+    
+    // PERGUNTAS DE SAIR / ADICIONAR / ... 
+    // FUNÇÕES QUE RETORNAM A OPÇÃO DO UTILIZADOR
 
     private static int texto_desaja_adicionar() {
         int op;
@@ -826,7 +883,9 @@ public class Main {
 
         return op;
     }
-
+    
+    // ACABA AQUI AS PERGUNTAS
+    
     //ACABA AQUI OS SHORTCUTS
 
 
@@ -849,19 +908,33 @@ public class Main {
 
 
 
+
+
+
+
+
+
     //OPÇÕES DE BASE DE DADOS
+    
+    // Adicionar aluno
 
-    private static int Inserir_dados(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, int nlens) {
-
+    private static int Inserir_dados(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, int nlens) { 
+    
+        /* Quando invocado esta função, o mesmo irá adicionar um aluno a base de dados em trabalho
+                Para cada função de editar (aluno,turma,nota de algoritimia, ....) enviasse uma flag que estará no estado "VERDADEIRO", caso 
+                o utilizador decida cancelar a opção de adicionar um aluno, essa mesma flag retornará no estado "FALSO". Assim cancelando o
+                adicionamento de um novo aluno.          
+        */
+        
+        
         boolean flag;
 
         flag = editar_turma(nlens,turma_aluno);
-
         if(flag == false){
             return -1; // quer dizer que foi cancelado
         }
+        
         flag = editar_nome(nlens,nome_aluno);
-
         if(flag == false){
             return -1; // quer dizer que foi cancelado
         }
@@ -872,27 +945,35 @@ public class Main {
         if(flag == false){
             return -1; // quer dizer que foi cancelado
         }
+        
         flag = editar_java(nlens, nota_java);
         if(flag == false){
             return -1; // quer dizer que foi cancelado
         }
+        
         flag = editar_vs(nlens, nota_vb);
         if(flag == false){
             return -1; // quer dizer que foi cancelado
         }
 
+        // Caso a flag encontre-se no estado "VERDADEIRO" a mesma chegará ate aqui, assim mostrando o aluno em seguida adicionado
+    
         visualizar_items_filtrados_sem_mf(nlens,turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb);
 
         voltar();
         return 0; //quer dizer que acabou
     }
+    
+    // Listar dados sem média final 
 
     private static void Listar_dados(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final,int nlens) {
         int pagina = 1;
         visualizar_tabela_geral_sem_mf(turma_aluno,numero_aluno,nome_aluno,nota_alg,nota_java,nota_vb,nota_final,nlens,pagina);
 
     }
-
+    
+    // Editar aluno
+    
     private static String[] menu_editar_termo_geral(boolean flag){
         if(flag == false) {
             Object[] escolhas_nome = {"Selecionar nome", "Tabela", "Voltar ao menu"};
@@ -935,6 +1016,8 @@ public class Main {
         String[] vetreturn = new String[2];
         return vetreturn;
     }
+    
+    // Continuação de editar daods
 
     private static void editar_dados(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb,double[] nota_final, int nlens) {
         int pos, op, opcao,opcao2,num;
@@ -1056,7 +1139,7 @@ public class Main {
         }
     }
 
-    private static boolean editar_turma(int pos, String[] turma_aluno){
+    private static boolean editar_turma(int pos, String[] turma_aluno){ // COMBOBOX
         String[] turma = {"AA","BB","CC","DD","EE","FF"};
         boolean flag = true;
 
@@ -1075,7 +1158,7 @@ public class Main {
         return flag;
     }
 
-    private static String[] inserir_turma(String[] nome_aluno){
+    private static String[] inserir_turma(String[] nome_aluno){ // FILTRAGEM POR DADOS ESCOLHIDOS PELO UTILIZADOR
         String turmanull = "", inserir_turma;
         boolean flag = false;
         String[] flag_op = new String[2];
@@ -1219,6 +1302,8 @@ public class Main {
         flag = true;
         return flag;
     }
+    
+    //Remover aluno
 
     private static void elimninar_dado(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb,double[] nota_final, int nlens) {
         int op, pos, num, x;
@@ -1312,6 +1397,9 @@ public class Main {
 
         }
     }
+    
+    
+    // Pesquisar por um dado inserido
 
     private static void pesquisar(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final,int nlens) {
         int op, pos,y;
@@ -1372,6 +1460,8 @@ public class Main {
         }
     }
 
+    // ACABA AQUI EDIÇÕES
+
 
     //PESQUISAS
 
@@ -1408,6 +1498,7 @@ public class Main {
         }
     }
 
+
     private static String pesquisar_turma(String turma, String[] turma_aluno, int nlens) {
           for(int x = 0; x < nlens ; x++){
               char ch = turma_aluno[x].charAt(0);
@@ -1420,6 +1511,9 @@ public class Main {
     }
 
     // FIM PESQUISAS
+    
+    
+    
 
     // CALCULOS ADICIONAIS
 
@@ -1431,6 +1525,9 @@ public class Main {
     }
 
     // FIM CALCULOS ADICIONAIS
+
+
+
 
     // ORDENAÇÕES
 
@@ -1584,6 +1681,8 @@ public class Main {
             voltar();
         }
     }
+    
+    
     private static void ordenacao_termo_geral(String[] turma_aluno, int[] numero_aluno, String[] nome_aluno, double[] nota_alg, double[] nota_java, double[] nota_vb, double[] nota_final, int x,int y) {
         int aux_int;
         String aux_txt;
