@@ -1,4 +1,4 @@
-# 192.168.1.Java_College_1
+# School mini program
 This here is my first work in java for college.
 
 This work is basically about a certain school that want to create and store data for the current students.
